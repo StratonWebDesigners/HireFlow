@@ -1,23 +1,60 @@
+🚀 HireFlow – Online Interview Management System
 
-## Setup
+HireFlow is a modern web-based Interview Management System designed to streamline the hiring process. It allows recruiters to manage candidates, schedule interviews, and track hiring progress in one centralized platform.
 
-```bash
-# 1. Install dependencies
+✨ Features
+🔐 Secure Authentication System
+📊 Dashboard with Key Metrics
+👥 Candidate Management (Add/View/Search)
+📅 Interview Scheduling & Tracking
+🔍 Search Candidates by Name/Email
+📝 Interview Notes & Feedback
+🌙 Clean Dark UI
+📸 Screens
+Login Page
+Dashboard Overview
+Interview Scheduling
+Candidate Search
+⚙️ Setup Instructions
+1️⃣ Install Dependencies
 pip install -r requirements.txt
-
-# 2. Run (initialises DB automatically on first start)
+2️⃣ Run the Application
 python app.py
 
-# 3. Open browser
+The database initializes automatically on first run ✅
+
+3️⃣ Open in Browser
 http://127.0.0.1:5000
-```
+🔑 Default Credentials
+Username	Password	Role
+admin	admin	Admin
+alice	hunter2	Interviewer
+bob	password	Interviewer
+🧠 Use Cases
+HR teams managing recruitment
+Startups hiring candidates
+College placement systems
+Learning full-stack CRUD apps
+🛠️ Tech Stack
+Python (Flask)
+HTML, CSS, JavaScript
+SQLite (Auto-initialized DB)
+📁 Project Structure
+HireFlow/
+│── app.py
+│── requirements.txt
+│── templates/
+│── static/
+│── database/
+🚀 Future Improvements
+Role-based access control
+Email notifications
+Resume upload & parsing
+AI-based candidate scoring
+🤝 Contributing
 
-### Defualt Credentials
+Feel free to fork the project and submit pull requests!
 
-| Username | Password  | Role        |
-|----------|-----------|-------------|
-| admin    | admin     | admin       |
-| alice    | hunter2   | interviewer |
-| bob      | password  | interviewer |
+📜 License
 
-s
+This project is open-source and available under the MIT License.
