@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p>Overview of candidates and scheduled interviews</p>
+</div>
+
+<div class="grid-2" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+  <div class="stat-card">
+    <div class="stat-num">{{ candidates|length }}</div>
+    <div class="stat-label">Candidates</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ interviews|length }}</div>
+    <div class="stat-label">Interviews</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:#4ade80;">3</div>
+    <div class="stat-label">Users</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:#4ade80;">1</div>
+    <div class="stat-label">Active Sessions</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h2 style="font-size:15px;color:#fff;">Recent Candidates</h2>
+      <a href="/candidates/add" class="btn btn-primary" style="padding:6px 12px;font-size:12px;">+ Add</a>
+    </div>
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th></th></tr></thead>
+      <tbody>
+        {% for c in candidates %}
+        <tr>
+          <td><a href="/candidate/{{ c.id }}">{{ c.name }}</a></td>
+          <td style="color:var(--text-dim);">{{ c.email }}</td>
+          <td><a href="/candidate/{{ c.id }}" style="font-size:12px;">View →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h2 style="font-size:15px;color:#fff;">Upcoming Interviews</h2>
+      <a href="/interviews/add" class="btn btn-primary" style="padding:6px 12px;font-size:12px;">+ Schedule</a>
+    </div>
+    <table>
+      <thead><tr><th>Candidate</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for i in interviews %}
+        <tr>
+          <td><a href="/interview/{{ i.id }}">{{ i.cname }}</a></td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);">{{ i.date }}</td>
+          <td><span style="font-size:11px;background:rgba(74,222,128,.1);color:#4ade80;padding:2px 8px;border-radius:3px;">{{ i.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{% endblock %}

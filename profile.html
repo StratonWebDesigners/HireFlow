@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Profile</h1>
+  <p>Manage your account settings</p>
+</div>
+<div class="card" style="max-width:480px;">
+  {% if msg %}<div class="alert alert-success">{{ msg }}</div>{% endif %}
+  <table style="margin-bottom:20px;">
+    <tr><th style="width:120px;">Field</th><th>Value</th></tr>
+    <tr><td>User ID</td><td style="font-family:'IBM Plex Mono',monospace;">{{ user.id }}</td></tr>
+    <tr><td>Username</td><td>{{ user.username }}</td></tr>
+    <tr><td>Role</td><td>{{ user.role }}</td></tr>
+    <tr><td>Password (MD5)</td><td style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);">{{ user.password }}</td></tr>
+  </table>
+
+  <h3 style="font-size:14px;color:#fff;margin-bottom:12px;">Change Password</h3>
+  <form method="POST" action="/profile">
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" name="password" placeholder="New password"/>
+    </div>
+    <button class="btn btn-primary" type="submit">Update Password</button>
+  </form>
+
+
+</div>
+{% endblock %}

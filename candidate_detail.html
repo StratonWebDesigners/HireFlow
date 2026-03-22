@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>{{ candidate.name }}</h1>
+  <p>Candidate profile</p>
+</div>
+<div class="card">
+  <table>
+    <tr><th style="width:140px;">Field</th><th>Value</th></tr>
+    <tr><td>ID</td><td style="font-family:'IBM Plex Mono',monospace;">{{ candidate.id }}</td></tr>
+    <tr><td>Name</td><td>{{ candidate.name }}</td></tr>
+    <tr><td>Email</td><td>{{ candidate.email }}</td></tr>
+    <tr><td>Owner ID</td><td style="font-family:'IBM Plex Mono',monospace;">{{ candidate.owner_id }}</td></tr>
+    <tr>
+      <td>Resume / Notes</td>
+      <td>{{ candidate.resume | safe }}</td>
+    </tr>
+  </table>
+</div>
+<div style="margin-top:16px;">
+  <a href="/candidates" class="btn btn-ghost">← Back</a>
+</div>
+{% endblock %}

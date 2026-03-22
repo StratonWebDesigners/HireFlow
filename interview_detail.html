@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Interview #{{ interview.id }}</h1>
+  <p>Interview details and feedback</p>
+</div>
+
+<div class="card" style="margin-bottom:16px;">
+  <table>
+    <tr><th style="width:160px;">Field</th><th>Value</th></tr>
+    <tr><td>Interview ID</td><td style="font-family:'IBM Plex Mono',monospace;">{{ interview.id }}</td></tr>
+    <tr><td>Candidate</td><td>{{ interview.cname }}</td></tr>
+    <tr><td>Date</td><td style="font-family:'IBM Plex Mono',monospace;">{{ interview.date }}</td></tr>
+    <tr><td>Status</td><td>{{ interview.status }}</td></tr>
+    <tr><td>Interviewer ID</td><td style="font-family:'IBM Plex Mono',monospace;">{{ interview.interviewer_id }}</td></tr>
+    <tr><td>Notes</td><td>{{ interview.notes }}</td></tr>
+  </table>
+</div>
+
+<div class="card" style="margin-bottom:16px;">
+  <h2 style="font-size:15px;color:#fff;margin-bottom:16px;">Feedback</h2>
+  {% if feedbacks %}
+    {% for f in feedbacks %}
+    <div style="border-bottom:1px solid var(--border);padding:12px 0;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:12px;color:var(--text-dim);">Rating: {{ f.rating }}/5</span>
+      </div>
+  
+      <div>{{ f.comment | safe }}</div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p style="color:var(--text-dim);font-size:13px;">No feedback yet.</p>
+  {% endif %}
+
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+    <h3 style="font-size:13px;color:#fff;margin-bottom:12px;">Add Feedback</h3>
+
+    <form method="POST" action="/feedback/add/{{ interview.id }}">
+      <div class="form-group">
+        <label>Comment</label>
+        <textarea name="comment" placeholder="Enter your feedback…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Rating (1–5)</label>
+        <select name="rating">
+          <option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Submit Feedback</button>
+    </form>
+  </div>
+</div>
+
+<a href="/interviews" class="btn btn-ghost">← Back</a>
+{% endblock %}

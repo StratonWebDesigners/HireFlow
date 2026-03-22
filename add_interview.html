@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Schedule Interview</h1>
+  <p>Set up a new interview for a candidate</p>
+</div>
+<div class="card" style="max-width:560px;">
+
+  <form method="POST" action="/interviews/add">
+    <div class="form-group">
+      <label>Candidate</label>
+      <select name="candidate_id">
+        {% for c in candidates %}
+        <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" name="date" required/>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea name="notes" placeholder="Initial screening notes…"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary" type="submit">Schedule</button>
+      <a href="/interviews" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

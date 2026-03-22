@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Interviews</h1>
+  <p>All scheduled and completed interviews</p>
+</div>
+<div style="margin-bottom:16px;">
+  <a href="/interviews/add" class="btn btn-primary">+ Schedule Interview</a>
+</div>
+<div class="card">
+  <table>
+    <thead><tr><th>ID</th><th>Candidate</th><th>Date</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      {% for i in interviews %}
+      <tr>
+        <td style="font-family:'IBM Plex Mono',monospace;color:var(--text-dim);">{{ i.id }}</td>
+        <td><a href="/interview/{{ i.id }}">{{ i.cname }}</a></td>
+        <td style="font-family:'IBM Plex Mono',monospace;font-size:12px;">{{ i.date }}</td>
+        <td><span style="font-size:11px;background:rgba(74,222,128,.1);color:#4ade80;padding:2px 8px;border-radius:3px;">{{ i.status }}</span></td>
+        <td style="color:var(--text-dim);font-size:12px;">{{ i.notes[:40] }}…</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

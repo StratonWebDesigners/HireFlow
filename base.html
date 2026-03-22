@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>HireFlow: An Online Interview Candidate Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #151820;
+      --border: #252a35;
+      --accent: #e8c547;
+      --accent2: #e05c5c;
+      --text: #c8cdd8;
+      --text-dim: #5a6070;
+      --green: #4ade80;
+      --radius: 4px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; min-height: 100vh; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 52px;
+    }
+    .topbar-brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600; font-size: 15px; color: var(--accent);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .topbar-brand .badge {
+      font-size: 9px; background: var(--accent2); color: #fff;
+      padding: 2px 6px; border-radius: 3px; letter-spacing: .05em;
+    }
+    .topbar-nav { display: flex; gap: 4px; }
+    .topbar-nav a {
+      color: var(--text-dim); font-size: 13px; padding: 6px 12px;
+      border-radius: var(--radius); transition: all .15s;
+    }
+    .topbar-nav a:hover, .topbar-nav a.active {
+      background: var(--border); color: var(--text); text-decoration: none;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text-dim); }
+    .user-chip {
+      background: var(--border); border-radius: 20px;
+      padding: 4px 12px; color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    }
+    .user-chip span { color: var(--accent); }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 22px; font-weight: 600; color: #fff; }
+    .page-header p  { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+    }
+    .card + .card { margin-top: 16px; }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+         color: var(--text-dim); padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-family: inherit; cursor: pointer;
+      border: none; border-radius: var(--radius); padding: 8px 16px;
+      transition: opacity .15s; font-weight: 600;
+    }
+    .btn:hover { opacity: .85; text-decoration: none; }
+    .btn-primary  { background: var(--accent); color: #0d0f14; }
+    .btn-danger   { background: var(--accent2); color: #fff; }
+    .btn-ghost    { background: var(--border); color: var(--text); }
+
+    /* ── FORMS ── */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; color: var(--text-dim);
+                        text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 9px 12px; color: var(--text);
+      font-family: inherit; font-size: 14px; outline: none; transition: border .15s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--accent);
+    }
+    .form-group textarea { min-height: 90px; resize: vertical; }
+
+    /* ── ALERTS ── */
+    .alert { padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 16px; }
+    .alert-error   { background: rgba(224,92,92,.12); border: 1px solid rgba(224,92,92,.3); color: #f08080; }
+    .alert-success { background: rgba(74,222,128,.1);  border: 1px solid rgba(74,222,128,.25); color: var(--green); }
+    .alert-warn    { background: rgba(232,197,71,.1);  border: 1px solid rgba(232,197,71,.25); color: var(--accent); }
+
+  
+
+    .vuln-tag {
+      display: inline-block; font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+      padding: 2px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
+    }
+    .vuln-sqli  { background: rgba(224,92,92,.2);  color: #f08080; border: 1px solid rgba(224,92,92,.3); }
+    .vuln-xss   { background: rgba(232,197,71,.15); color: var(--accent); border: 1px solid rgba(232,197,71,.25); }
+    .vuln-idor  { background: rgba(100,160,255,.15); color: #80b0ff; border: 1px solid rgba(100,160,255,.25); }
+    .vuln-csrf  { background: rgba(160,100,255,.15); color: #c080ff; border: 1px solid rgba(160,100,255,.25); }
+
+    /* ── GRID ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .stat-card .stat-num { font-size: 36px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; color: var(--accent); }
+    .stat-card .stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── SEARCH BAR ── */
+    .search-wrap { display: flex; gap: 8px; margin-bottom: 20px; }
+    .search-wrap input { flex: 1; }
+  </style>
+</head>
+<body>
+
+{% if session.user_id %}
+<div class="topbar">
+  <div class="topbar-brand">
+    ⬡ HireFlow
+
+  </div>
+  <nav class="topbar-nav">
+    <a href="/dashboard"  {% if request.path=='/dashboard'  %}class="active"{% endif %}>Dashboard</a>
+    <a href="/candidates" {% if request.path=='/candidates' %}class="active"{% endif %}>Candidates</a>
+    <a href="/interviews" {% if request.path=='/interviews' %}class="active"{% endif %}>Interviews</a>
+    <a href="/search"     {% if '/search' in request.path   %}class="active"{% endif %}>Search</a>
+    <a href="/profile"    {% if request.path=='/profile'    %}class="active"{% endif %}>Profile</a>
+  </nav>
+  <div class="topbar-right">
+    <div class="user-chip">⬡ <span>{{ session.username }}</span> · {{ session.role }}</div>
+    <a href="/logout" class="btn btn-ghost" style="padding:5px 12px;font-size:12px;">Logout</a>
+  </div>
+</div>
+{% endif %}
+
+<div class="page">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

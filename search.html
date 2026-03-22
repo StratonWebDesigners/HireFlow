@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Search</h1>
+  <p>Search candidates by name or email</p>
+</div>
+
+<div class="search-wrap">
+  <form method="GET" action="/search" style="display:flex;gap:8px;width:100%;">
+    <div class="form-group" style="flex:1;margin:0;">
+  
+      <input type="text" name="q" value="{{ q }}" placeholder="Search by name or email…"/>
+    </div>
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+</div>
+
+{% if error %}
+<div class="alert alert-error" style="font-family:'IBM Plex Mono',monospace;font-size:12px;">
+  DB Error: {{ error }}
+</div>
+{% endif %}
+
+<p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">
+  Results for: {{ q | safe }}
+</p>
+
+<div class="card">
+  {% if results %}
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Resume</th></tr></thead>
+    <tbody>
+      {% for c in results %}
+      <tr>
+        <td style="font-family:'IBM Plex Mono',monospace;">{{ c[0] }}</td>
+        <td>{{ c[1] }}</td>
+        <td>{{ c[2] }}</td>
+        <td style="font-size:12px;color:var(--text-dim);">{{ c[3] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--text-dim);font-size:13px;">No results found.</p>
+  {% endif %}
+</div>
+{% endblock %}
