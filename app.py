@@ -98,7 +98,7 @@ def login():
         
         pw_hash = hashlib.md5(password.encode()).hexdigest()
         db = get_db()
-        # FIX: Use parameterized query to prevent SQL injection
+        # FIX: SQLI - Use parameterized query
         try:
             user = db.execute("SELECT * FROM users WHERE username=? AND password=?", 
                             (username, pw_hash)).fetchone()
@@ -176,7 +176,7 @@ def delete_candidate(cid):
         return redirect(url_for("login"))
 
     db = get_db()
-    # FIX: Check ownership before deleting (IDOR prevention)
+    # FIX: IDOR - Check ownership before deleting
     candidate = db.execute("SELECT * FROM candidates WHERE id=?", (cid,)).fetchone()
     if not candidate:
         return "Not found", 404
@@ -254,7 +254,7 @@ def search():
     q = request.args.get("q", "")
     db = get_db()
   
-    # FIX: Use parameterized query to prevent SQL injection
+    # FIX: SQLI - Use parameterized query
     try:
         results = db.execute("SELECT * FROM candidates WHERE name LIKE ? OR email LIKE ?", 
                            (f"%{q}%", f"%{q}%")).fetchall()
@@ -265,7 +265,7 @@ def search():
     
     return render_template("search.html", results=results, q=q, error=error)
 
-# ─── PROFILE ──────────────────────────────────────────────────────────[...]
+# ─── PROFILE ─────────────────────────────���────────────────────────────[...]
 
 @app.route("/profile", methods=["GET","POST"])
 @validate_csrf_token
