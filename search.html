@@ -8,7 +8,6 @@
 <div class="search-wrap">
   <form method="GET" action="/search" style="display:flex;gap:8px;width:100%;">
     <div class="form-group" style="flex:1;margin:0;">
-  
       <input type="text" name="q" value="{{ q }}" placeholder="Search by name or email…"/>
     </div>
     <button class="btn btn-primary" type="submit">Search</button>
@@ -22,7 +21,7 @@
 {% endif %}
 
 <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">
-  Results for: {{ q | safe }}
+  Results for: {{ q }}
 </p>
 
 <div class="card">
