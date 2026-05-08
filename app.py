@@ -1,12 +1,13 @@
 from flask import Flask, request, render_template, redirect, url_for, session, make_response, g
-import sqlite3, os, hashlib
+import sqlite3, os, hashlib, secrets
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = "supersecret123" 
 
 DB = "interview.db"
 
-# ─── DB HELPERS ────────────────────────────────────────────────────────────────
+# ─── DB HELPERS ──────────────────────────────────────────────────────────[...]
 
 def get_db():
     db = sqlite3.connect(DB)
@@ -58,7 +59,29 @@ def init_db():
     db.commit()
     db.close()
 
-# ─── AUTH ───────────────────────────────────────────────────────────────────────
+# ─── CSRF PROTECTION ────────────────────────────────────────────────────────[...]
+
+def generate_csrf_token():
+    """Generate a CSRF token for the session."""
+    if '_csrf_token' not in session:
+        session['_csrf_token'] = secrets.token_hex(32)
+    return session['_csrf_token']
+
+def validate_csrf_token(f):
+    """Decorator to validate CSRF tokens on POST requests."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if request.method == 'POST':
+            token = session.get('_csrf_token', None)
+            if not token or token != request.form.get('_csrf_token'):
+                return "CSRF validation failed", 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Make csrf_token available in templates
+app.jinja_env.globals['csrf_token'] = generate_csrf_token
+
+# ─── AUTH ───────────────────────────────────────────────────────────[...]
 
 @app.route("/", methods=["GET"])
 def index():
@@ -75,9 +98,10 @@ def login():
         
         pw_hash = hashlib.md5(password.encode()).hexdigest()
         db = get_db()
-        query = f"SELECT * FROM users WHERE username='{username}' AND password='{pw_hash}'"
+        # FIX: Use parameterized query to prevent SQL injection
         try:
-            user = db.execute(query).fetchone()
+            user = db.execute("SELECT * FROM users WHERE username=? AND password=?", 
+                            (username, pw_hash)).fetchone()
         except Exception as e:
             return render_template("login.html", error=f"DB Error: {e}")
         if user:
@@ -94,7 +118,7 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
-# ─── DASHBOARD ──────────────────────────────────────────────────────────────────
+# ─── DASHBOARD ──────────────────────────────────────────────────────────[...]
 
 @app.route("/dashboard")
 def dashboard():
@@ -105,7 +129,7 @@ def dashboard():
     interviews = db.execute("SELECT i.*, c.name as cname FROM interviews i JOIN candidates c ON i.candidate_id=c.id").fetchall()
     return render_template("dashboard.html", candidates=candidates, interviews=interviews)
 
-# ─── CANDIDATES ─────────────────────────────────────────────────────────────────
+# ─── CANDIDATES ─────────────────────────────────────────────────────────[...]
 
 @app.route("/candidates")
 def candidates():
@@ -128,6 +152,7 @@ def candidate_detail(cid):
     return render_template("candidate_detail.html", candidate=c)
 
 @app.route("/candidates/add", methods=["GET", "POST"])
+@validate_csrf_token
 def add_candidate():
     if "user_id" not in session:
         return redirect(url_for("login"))
@@ -145,16 +170,26 @@ def add_candidate():
     return render_template("add_candidate.html")
 
 @app.route("/candidates/delete/<int:cid>", methods=["POST"])
+@validate_csrf_token
 def delete_candidate(cid):
     if "user_id" not in session:
         return redirect(url_for("login"))
 
     db = get_db()
+    # FIX: Check ownership before deleting (IDOR prevention)
+    candidate = db.execute("SELECT * FROM candidates WHERE id=?", (cid,)).fetchone()
+    if not candidate:
+        return "Not found", 404
+    
+    # Only admin or owner can delete
+    if session.get("role") != "admin" and candidate["owner_id"] != session["user_id"]:
+        return "Unauthorized", 403
+    
     db.execute("DELETE FROM candidates WHERE id=?", (cid,))
     db.commit()
     return redirect(url_for("candidates"))
 
-# ─── INTERVIEWS ─────────────────────────────────────────────────────────────────
+# ─── INTERVIEWS ─────────────────────────────────────────────────────────[...]
 
 @app.route("/interviews")
 def interviews():
@@ -180,6 +215,7 @@ def interview_detail(iid):
     return render_template("interview_detail.html", interview=row, feedbacks=feedbacks)
 
 @app.route("/interviews/add", methods=["GET","POST"])
+@validate_csrf_token
 def add_interview():
     if "user_id" not in session:
         return redirect(url_for("login"))
@@ -194,9 +230,10 @@ def add_interview():
     candidates = db.execute("SELECT * FROM candidates").fetchall()
     return render_template("add_interview.html", candidates=candidates)
 
-# ─── FEEDBACK ───────────────────────────────────────────────────────────────────
+# ─── FEEDBACK ──────────────────────────────────────────────────────────[...]
 
 @app.route("/feedback/add/<int:iid>", methods=["POST"])
+@validate_csrf_token
 def add_feedback(iid):
     if "user_id" not in session:
         return redirect(url_for("login"))
@@ -208,7 +245,7 @@ def add_feedback(iid):
     db.commit()
     return redirect(url_for("interview_detail", iid=iid))
 
-# ─── SEARCH ─────────────────────────────────────────────────────────────────────
+# ─── SEARCH ──────────────────────────────────────────────────────────[...]
 
 @app.route("/search")
 def search():
@@ -217,9 +254,10 @@ def search():
     q = request.args.get("q", "")
     db = get_db()
   
-    query = f"SELECT * FROM candidates WHERE name LIKE '%{q}%' OR email LIKE '%{q}%'"
+    # FIX: Use parameterized query to prevent SQL injection
     try:
-        results = db.execute(query).fetchall()
+        results = db.execute("SELECT * FROM candidates WHERE name LIKE ? OR email LIKE ?", 
+                           (f"%{q}%", f"%{q}%")).fetchall()
         error = None
     except Exception as e:
         results = []
@@ -227,9 +265,10 @@ def search():
     
     return render_template("search.html", results=results, q=q, error=error)
 
-# ─── PROFILE ────────────────────────────────────────────────────────────────────
+# ─── PROFILE ──────────────────────────────────────────────────────────[...]
 
 @app.route("/profile", methods=["GET","POST"])
+@validate_csrf_token
 def profile():
     if "user_id" not in session:
         return redirect(url_for("login"))
